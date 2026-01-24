@@ -8,8 +8,8 @@ src/                             # MAIN STAGES
     ├── if_stage.vhd             # Instruction Fetch (IF)
     │   └── instruction_memory.vhd
     ├── id_stage.vhd             # Instruction Decode (ID)
-    │   └── register_file.vhd
-    │       └── decoder.vhd
+    │   ├── register_file.vhd
+    │   └── decoder.vhd
     ├── ex_stage.vhd             # Instruction Execute (EX)
     │   ├── alu.vhd
     │   └── comparator.vhd
