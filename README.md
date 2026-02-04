@@ -32,7 +32,8 @@ tb/					                # TESTBENCHES
 ├── tb_ex_stage.vhd			        # testbench for EX
 ├── tb_mem_wb_stage.vhd		        # testbench for MEM + WB
 ├── tb_cpu_top.vhd	 	        	# testbench for Datapath
-└── tb_cordic_wrapper.vhd	     	# testbench for Cordic
+├── tb_cordic_core.vhd	 	        # testbench for Cordic Algorithm
+└── tb_cordic_wrapper.vhd	     	# testbench for Cordic Wrapper
 
 ```
 
