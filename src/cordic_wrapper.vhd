@@ -43,11 +43,11 @@ architecture RTL of cordic_wrapper is
     signal cos_core   : signed(WIDTH-1 downto 0); -- Q1.(WIDTH-1)
     signal sin_core   : signed(WIDTH-1 downto 0); -- Q1.(WIDTH-1)
 
-    -- Latched normalization
+    -- Latched normalization (kept stable for the whole computation)
     signal quadrant_r  : unsigned(1 downto 0);
     signal angle_deg_r : integer range 0 to 90;
 
-    -- start delayed (avoid race)
+    -- start delayed (avoid race with angle/quadrant latch)
     signal start_d : std_logic;
 
     constant SCALE : integer := 2 ** (WIDTH-2);  -- Q2.(WIDTH-2)
@@ -72,7 +72,7 @@ begin
     -- (only when core is idle to avoid quadrant glitches)
     -- =========================================
     process(clk)
-        variable a : integer;
+        variable a        : integer;
         variable ang_norm : integer;
     begin
         if rising_edge(clk) then
@@ -96,7 +96,7 @@ begin
                     ang_norm    := 360 - a;
                 end if;
 
-                -- Optional safety clamp to avoid 90° exact (CORDIC edge case)
+                -- Optional safety clamp to avoid 90Â° exact (CORDIC edge case)
                 -- if ang_norm > 89 then
                 --     ang_norm := 89;
                 -- end if;
@@ -138,28 +138,32 @@ begin
         );
 
     -- =========================================
-    -- Quadrant sign correction
-    -- (quadrant_r is stable for the whole computation)
+    -- Quadrant sign correction (registered output)
+    -- Output is latched on done to avoid glitches
     -- =========================================
-    process(cos_core, sin_core, quadrant_r)
+    process(clk)
     begin
-        case quadrant_r is
-            when "00" => -- Q1 (0° .. 90°)
-                cos_out <=  cos_core;
-                sin_out <=  sin_core;
+        if rising_edge(clk) then
+            if core_done = '1' then
+                case quadrant_r is
+                    when "00" => -- Q1 (0Â° .. 90Â°)
+                        cos_out <=  cos_core;
+                        sin_out <=  sin_core;
 
-            when "01" => -- Q2 (90° .. 180°)
-                cos_out <= -cos_core;
-                sin_out <=  sin_core;
+                    when "01" => -- Q2 (90Â° .. 180Â°)
+                        cos_out <= -cos_core;
+                        sin_out <=  sin_core;
 
-            when "10" => -- Q3 (180° .. 270°)
-                cos_out <= -cos_core;
-                sin_out <= -sin_core;
+                    when "10" => -- Q3 (180Â° .. 270Â°)
+                        cos_out <= -cos_core;
+                        sin_out <= -sin_core;
 
-            when others => -- Q4 (270° .. 360°)
-                cos_out <=  cos_core;
-                sin_out <= -sin_core;
-        end case;
+                    when others => -- Q4 (270Â° .. 360Â°)
+                        cos_out <=  cos_core;
+                        sin_out <= -sin_core;
+                end case;
+            end if;
+        end if;
     end process;
 
     busy <= core_busy;
