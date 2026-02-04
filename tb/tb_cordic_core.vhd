@@ -7,7 +7,7 @@ use IEEE.MATH_REAL.ALL;
 -- CORDIC Core Testbench
 -- ============================
 -- Tests the iterative CORDIC core
--- Angles limited to [-90�, +90�]
+-- Angles limited to [-90°, +90°]
 -- Converts fixed-point outputs to real
 -- ============================
 
@@ -25,11 +25,11 @@ architecture Behavioral of tb_cordic_core is
     -- ============================
     signal clk     : std_logic := '0';
     signal start   : std_logic := '0';
-    signal angle   : signed(WIDTH-1 downto 0);
+    signal angle   : signed(WIDTH-1 downto 0);  -- Q2.(WIDTH-2)
     signal busy    : std_logic;
     signal done    : std_logic;
-    signal cos_out : signed(WIDTH-1 downto 0);
-    signal sin_out : signed(WIDTH-1 downto 0);
+    signal cos_out : signed(WIDTH-1 downto 0);  -- Q1.(WIDTH-1)
+    signal sin_out : signed(WIDTH-1 downto 0);  -- Q1.(WIDTH-1)
 
     -- ============================
     -- Debug (real values)
@@ -38,15 +38,15 @@ architecture Behavioral of tb_cordic_core is
     signal sin_real : real;
 
     -- ============================
-    -- Degrees ? fixed-point radians
-    -- Q1.(WIDTH-1)
+    -- Degrees -> fixed-point radians
+    -- Q2.(WIDTH-2)
     -- ============================
     function deg_to_rad_fixed(deg : integer) return signed is
         variable real_rad : real;
         variable fixed    : integer;
     begin
         real_rad := real(deg) * math_pi / 180.0;
-        fixed    := integer(real_rad * real(2**(WIDTH-1)));
+        fixed    := integer(real_rad * real(2**(WIDTH-2)));
         return to_signed(fixed, WIDTH);
     end function;
 
@@ -71,7 +71,8 @@ begin
         );
 
     -- ============================
-    -- Fixed-point ? real
+    -- Fixed-point -> real
+    -- Q1.(WIDTH-1)
     -- ============================
     cos_real <= real(to_integer(cos_out)) / real(2**(WIDTH-1));
     sin_real <= real(to_integer(sin_out)) / real(2**(WIDTH-1));
@@ -93,29 +94,31 @@ begin
                 severity failure;
 
             angle <= deg_to_rad_fixed(deg);
+
+            -- start aligned to clock
             start <= '1';
-            wait for CLK_PERIOD;
+            wait until rising_edge(clk);
             start <= '0';
 
             -- Wait for computation to finish
             wait until done = '1';
-            wait for CLK_PERIOD;
+            wait until rising_edge(clk);
 
-            report "Angle " & integer'image(deg) &
-                   " deg -> cos=" & real'image(cos_real) &
-                   " sin=" & real'image(sin_real);
+            report "Angle " & integer'image(deg) & " deg -> " &
+                   "cos = " & real'image(cos_real) &
+                   " , sin = " & real'image(sin_real);
         end procedure;
 
     begin
         -- Initial delay
         wait for 20 ns;
 
-        -- Valid test angles
-        run_angle(0);
+        -- Valid test angles (avoid exact ±90° for numeric stability)
         run_angle(15);
         run_angle(30);
         run_angle(45);
-        
+        run_angle(60);
+
         -- Delay to see all the results
         wait for 150 ns;
 
