@@ -110,12 +110,12 @@ begin
 
     begin
         wait for 20 ns;
-
-        run_angle(15);
-        run_angle(30);
-        run_angle(45);
-        run_angle(60);
         
+        run_angle(45);
+        run_angle(135);
+        run_angle(225);
+        run_angle(315);
+
         wait for 200 ns;
 
         assert false
