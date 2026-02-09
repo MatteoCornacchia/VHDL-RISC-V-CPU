@@ -1,16 +1,19 @@
 # VHDL RISC-V CPU + CORDIC Module
 
-This repository contains a simple RISC-V CPU core implemented in VHDL, together with a CORDIC-based hardware module for trigonometric computations (sine and cosine).  
-The project is meant as an educational and experimental design, focusing on clarity and modularity rather than performance or full ISA coverage.
+This project is entirely developed in VHDL and consists of three main components:
 
-The CPU follows a classic 5-stage structure (IF, ID, EX, MEM, WB), with each stage implemented as a separate VHDL module.  
-The CORDIC unit is integrated as a standalone module and wrapped to be easily connected to the main datapath.
+- A basic RISC-V CPU design, implemented with a simple and modular architecture.  
+- A standalone CORDIC hardware module for sine and cosine computation, developed as an independent unit from the CPU core.  
+- An interface with the Nexys 4 DDR FPGA board, used to interact with the CORDIC module for hardware-level input/output and testing.
+
+The overall goal of the project is to provide a clear and educational hardware design, combining a simple RISC-V processor with a dedicated computational accelerator and real FPGA board interaction.
+
 
 ## Project Structure
 
 ```
 scr/					            # MAIN STAGES
-├── cpu_top.vhd				        # Datapath (top level)
+├── cpu_top.vhd				        # Datapath (top level for cpu)
 │   ├── if_stage.vhd		    	# Instructiion Fetch (IF)
 │   │   └── instruction_memory.vhd
 │   ├── id_stage.vhd		    	# Instruction Decode (ID)
@@ -22,9 +25,14 @@ scr/					            # MAIN STAGES
 │   ├── mem_stage.vhd		    	# Data Memory (MEM)
 │   └── wb_stage.vhd		    	# Write Back (WB)
 │       └── data_mem.vhd
-└── cordic_wrapper.vhd		    	# Cordic Wrapper
-    └── cordic_core.vhd		    	# Cordic Algorithm
+└── top_nexys.vhd		        	# Top Nexys (top level for board + cordic)
+    ├── cordic_wrapper.vhd		    # Cordic Wrapper
+    │   └── cordic_core.vhd		    # Cordic Algorithm
+    ├── debounce_pulse.vhd			# Debounce + Pulse Generator for Pushbuttons
+    └── seven_seg_driver.vhd		# 7 Segements Display Driver
 
+constr/                             # CONSTRAINTS
+└── nexys4ddr.xdc                   # Constraints file for Nexys 4 DDR
 
 tb/					                # TESTBENCHES
 ├── tb_if_stage.vhd			        # testbench for IF
@@ -37,17 +45,5 @@ tb/					                # TESTBENCHES
 
 ```
 
-## Goals and Scope
-
-- Educational implementation of a simple RISC-V CPU core in VHDL.
-- Modular design: each stage is developed and tested independently.
-- Integration of a CORDIC hardware accelerator for sine and cosine computation.
-- Clear and readable RTL, suitable for learning and experimentation.
-
-## Notes
-
-- The project does not aim to fully implement the RISC-V ISA or to be cycle-accurate with a commercial core.
-- The CORDIC module is designed to be reusable and loosely coupled to the CPU datapath.
-- Testbenches are provided for individual stages and for the top-level CPU and CORDIC wrapper.
 
 
