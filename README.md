@@ -4,10 +4,9 @@ This project is entirely developed in VHDL and consists of three main components
 
 - A basic RISC-V CPU design, implemented with a simple and modular architecture.  
 - A standalone CORDIC hardware module for sine and cosine computation, developed as an independent unit from the CPU core.  
-- An interface with the Nexys 4 DDR FPGA board, used to interact with the CORDIC module for hardware-level input/output and testing.
+- An interface with the Nexys 4 DDR board, used to interact with the CORDIC module for hardware-level input/output and testing.
 
-The overall goal of the project is to provide a clear and educational hardware design, combining a simple RISC-V processor with a dedicated computational accelerator and real FPGA board interaction.
-
+All details are explained in the report (`doc/report.pdf`).
 
 ## Project Structure
 
