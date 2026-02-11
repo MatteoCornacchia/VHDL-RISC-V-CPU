@@ -3,15 +3,23 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 -- ============================
--- CPU Top Level
+-- CPU Top Level (Debug Version)
 -- ============================
 -- Single-cycle RISC-V CPU
 -- IF -> ID -> EX -> MEM -> WB
+-- Debug outputs added for simulation / report
 -- ============================
 
 entity cpu_top is
     port (
-        clk : in std_logic
+        clk        : in  std_logic;
+
+        -- Debug outputs
+        dbg_pc     : out std_logic_vector(31 downto 0);
+        dbg_npc    : out std_logic_vector(31 downto 0);
+        dbg_instr  : out std_logic_vector(31 downto 0);
+        dbg_alu    : out std_logic_vector(31 downto 0);
+        dbg_wb     : out std_logic_vector(31 downto 0)
     );
 end cpu_top;
 
@@ -60,7 +68,7 @@ architecture Structural of cpu_top is
 
 begin
 
-       -- ============================
+    -- ============================
     -- Instruction Fetch
     -- ============================
     if_inst : entity work.if_stage
@@ -146,5 +154,14 @@ begin
     -- PC update
     -- ============================
     pc_in <= pc_out;
+
+    -- ============================
+    -- Debug connections
+    -- ============================
+    dbg_pc    <= curr_pc;
+    dbg_npc   <= next_pc;
+    dbg_instr <= instr;
+    dbg_alu   <= alu_result;
+    dbg_wb    <= rd_value;
 
 end Structural;
