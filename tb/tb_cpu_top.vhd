@@ -3,12 +3,13 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 -- ============================
--- CPU Top Testbench
+-- CPU Top Testbench (Debug)
 -- ============================
 -- Purpose:
---  - Verify full datapath functionality
---  - Check PC progression
---  - Validate register write-back
+--  - Observe PC progression
+--  - Observe instruction fetch
+--  - Observe ALU result
+--  - Observe write-back data
 -- ============================
 
 entity tb_cpu_top is
@@ -19,21 +20,26 @@ architecture Behavioral of tb_cpu_top is
     constant clk_period : time := 20 ns;
     signal clk          : std_logic := '0';
 
-    -- DUT
-    component cpu_top
-        port (
-            clk : in std_logic
-        );
-    end component;
+    -- Debug signals from DUT
+    signal dbg_pc     : std_logic_vector(31 downto 0);
+    signal dbg_npc    : std_logic_vector(31 downto 0);
+    signal dbg_instr  : std_logic_vector(31 downto 0);
+    signal dbg_alu    : std_logic_vector(31 downto 0);
+    signal dbg_wb     : std_logic_vector(31 downto 0);
 
 begin
 
     -- ============================
     -- DUT instantiation
     -- ============================
-    dut : cpu_top
+    dut : entity work.cpu_top
         port map (
-            clk => clk
+            clk        => clk,
+            dbg_pc     => dbg_pc,
+            dbg_npc    => dbg_npc,
+            dbg_instr  => dbg_instr,
+            dbg_alu    => dbg_alu,
+            dbg_wb     => dbg_wb
         );
 
     -- ============================
@@ -52,10 +58,9 @@ begin
     -- ============================
     stim_proc : process
     begin
-        -- Let the CPU run for N cycles
-        wait for 500 ns;
+        -- Run CPU for many cycles (es. 50 cicli)
+        wait for 1000 ns;
 
-        -- Stop simulation
         assert false
             report "End of CPU simulation"
             severity failure;
